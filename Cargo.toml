@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["Piers Finlayson <piers@packom.net>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
+repository = "https://github.com/packom/httpd-util"
+documentation = "https://github.com/packom/httpd-util"
+homepage = "https://www.packom.net"
+description = "A set of utilities for building HTTP microservices"
 
 [dependencies]
 pnet = "0.22.0"

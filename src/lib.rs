@@ -24,12 +24,16 @@ extern crate signal_hook;
 #[macro_use]
 extern crate clap;
 
+#[cfg(test)]
+mod tests;
+
 use clap::App;
 use openssl::error::ErrorStack;
 use openssl::ssl::{SslAcceptorBuilder, SslMethod};
 use openssl::x509::X509_FILETYPE_PEM;
 use std::env;
 use std::net::{SocketAddr, ToSocketAddrs};
+use signal_hook::{register, SIGINT, SIGTERM};
 
 const AFTER_HELP: &str = "Configured using environment variables:
     [SERVER_IP] - Local IP address or domain name to bind to
@@ -176,20 +180,38 @@ fn get_port(port_var: &str, port_default: &str) -> String {
     }
 }
 
+macro_rules! reg_sig {
+    ($sig: expr, $fn: tt) => {
+        unsafe { register($sig, || $fn()) }
+            .and_then(|_| {
+                debug!("Registered for {}", stringify!($sig));
+                Ok(())
+            })
+            .or_else(|e| {
+                warn!("Failed to register for {} {:?}", stringify!($sig), e);
+                Err(e)
+            })
+            .ok();
+    }
+}
+
+macro_rules! handle_sig {
+    ($sig: expr, $st: tt) => {
+        warn!("{} caught - exiting", stringify!($sig));
+        std::process::exit(128 + $sig);
+    }
+}
+
 pub fn reg_for_sigs() {
-    unsafe { signal_hook::register(signal_hook::SIGINT, || on_sigint()) }
-        .and_then(|_| {
-            debug!("Registered for SIGINT");
-            Ok(())
-        })
-        .or_else(|e| {
-            warn!("Failed to register for SIGINT {:?}", e);
-            Err(e)
-        })
-        .ok();
+    reg_sig!(SIGINT, on_sigint);
+    reg_sig!(SIGTERM, on_sigterm);
 }
 
 fn on_sigint() {
-    warn!("SIGINT caught - exiting");
-    std::process::exit(128 + signal_hook::SIGINT);
+    handle_sig!(SIGINT, "SIGINT");
 }
+
+fn on_sigterm() {
+    handle_sig!(SIGTERM, "SIGTERM");
+}
+

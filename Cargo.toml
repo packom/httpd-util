@@ -16,7 +16,7 @@ maintenance = { status = "actively-developed" }
 travis-ci = { repository = "packom/httpd-util", branch = "master" }
 
 [dependencies]
-pnet = "0.22.0"
+pnet = "0.23.0"
 log = "0.4.6"
 signal-hook = "0.1.7"
 openssl = {version = "0.9.14"}

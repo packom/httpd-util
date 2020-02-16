@@ -39,7 +39,10 @@ fn ssl_paths() {
 
 #[test]
 fn env_strs() {
+    env::set_var(SSL_KEY_VAR, "key");
+    env::set_var(SSL_CERT_VAR, "cert");
     let env_s = get_env_strings(vec![]);
+    println!("{:?}", env_s);
 }
 
 #[test]

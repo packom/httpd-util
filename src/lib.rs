@@ -64,29 +64,40 @@ pub fn init_app(name: &str, author: &str, about: &str, args: Vec<&str>, envs: Ve
     reg_for_sigs();
 }
 
-const SSL_KEY_PATH: &str = "/ssl/key.pem";
-const SSL_CERT_PATH: &str = "/ssl/cert.pem";
-
-pub fn ssl() -> Result<SslAcceptorBuilder, ErrorStack> {
-    // Builds an SSL implementation for Simple HTTPS from some hard-coded file names
-    let mut ssl = SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())?;
-
-    // Server authentication
-    debug!("Loading SSL key from {}", SSL_KEY_PATH);
-    ssl.set_private_key_file(SSL_KEY_PATH, X509_FILETYPE_PEM)?;
-    debug!("Loading SSL key from {}", SSL_CERT_PATH);
-    ssl.set_certificate_chain_file(SSL_CERT_PATH)?;
-    ssl.check_private_key()?;
-
-    Ok(ssl)
-}
-
+const SSL_KEY_VAR: &str = "SSL_KEY";
+const SSL_KEY_DEF: &str = "/ssl/key.pem";
+const SSL_CERT_VAR: &str = "SSL_CERT";
+const SSL_CERT_DEF: &str = "/ssl/cert.pem";
 const SERVER_IP_VAR: &str = "SERVER_IP";
 const SERVER_IP_DEF: &str = "0.0.0.0";
 const SERVER_PORT_VAR: &str = "SERVER_PORT";
 const SERVER_PORT_DEF: &str = "8080";
 const HTTPS: &str = "HTTPS";
 const RUST_LOG: &str = "RUST_LOG";
+const NOT_PRESENT: &str = "<not present>";
+
+pub fn ssl() -> Result<SslAcceptorBuilder, ErrorStack> {
+    // Builds an SSL implementation for Simple HTTPS from some hard-coded file names
+    let mut ssl = SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())?;
+
+    // Server authentication
+    let key = get_env_str(SSL_KEY_VAR, SSL_KEY_DEF);
+    let cert = get_env_str(SSL_CERT_VAR, SSL_CERT_DEF);
+    debug!("Loading SSL key from {}", key);
+    ssl.set_private_key_file(key, X509_FILETYPE_PEM)?;
+    debug!("Loading SSL cert from {}", cert);
+    ssl.set_certificate_chain_file(cert)?;
+    ssl.check_private_key()?;
+
+    Ok(ssl)
+}
+
+fn get_env_str(var: &str, default: &str) -> String {
+    match env::var(var) {
+        Ok(rsp) => rsp,
+        Err(_) => String::from(default),
+    }
+}
 
 pub fn log_env(envs: Vec<&str>) {
     info!("Environment configuration:");
@@ -96,7 +107,7 @@ pub fn log_env(envs: Vec<&str>) {
 }
 
 pub fn get_env_strings(envs: Vec<&str>) -> Vec<String> {
-    let mut envs_i = vec![SERVER_IP_VAR, SERVER_PORT_VAR, HTTPS, RUST_LOG];
+    let mut envs_i = vec![SSL_KEY_VAR, SSL_CERT_VAR, SERVER_IP_VAR, SERVER_PORT_VAR, HTTPS, RUST_LOG];
     for env in envs {
         envs_i.push(env)
     }
@@ -106,7 +117,7 @@ pub fn get_env_strings(envs: Vec<&str>) -> Vec<String> {
             format!(
                 "{}: {}",
                 val,
-                env::var(val).unwrap_or("<not present>".to_string())
+                get_env_str(val, NOT_PRESENT)
             )
         })
         .collect::<Vec<String>>()

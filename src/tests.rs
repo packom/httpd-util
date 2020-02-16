@@ -22,3 +22,31 @@ use super::*;
 fn reg_sigs() {
     reg_for_sigs();
 }
+
+#[test]
+fn ssl_paths() {
+    let key = get_env_str(SSL_KEY_VAR, SSL_KEY_DEF);
+    assert!(key == SSL_KEY_DEF);
+    let cert = get_env_str(SSL_CERT_VAR, SSL_CERT_DEF);
+    assert!(cert == SSL_CERT_DEF);
+    env::set_var(SSL_KEY_VAR, "key");
+    env::set_var(SSL_CERT_VAR, "cert");
+    let key = get_env_str(SSL_KEY_VAR, SSL_KEY_DEF);
+    assert!(key == "key");
+    let cert = get_env_str(SSL_CERT_VAR, SSL_CERT_DEF);
+    assert!(cert == "cert");
+}
+
+#[test]
+fn env_strs() {
+    let env_s = get_env_strings(vec![]);
+}
+
+#[test]
+fn ssl_test() {
+    match ssl() {
+        Ok(_) => (),
+        Err(_) => (),
+    }
+}
+

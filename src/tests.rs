@@ -25,6 +25,8 @@ fn reg_sigs() {
 
 #[test]
 fn ssl_paths() {
+    env::remove_var(SSL_KEY_VAR);
+    env::remove_var(SSL_CERT_VAR);
     let key = get_env_str(SSL_KEY_VAR, SSL_KEY_DEF);
     assert!(key == SSL_KEY_DEF);
     let cert = get_env_str(SSL_CERT_VAR, SSL_CERT_DEF);

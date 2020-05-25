@@ -1,6 +1,6 @@
 [package]
 name = "httpd-util"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Piers Finlayson <piers@packom.net>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
@@ -16,9 +16,9 @@ maintenance = { status = "actively-developed" }
 travis-ci = { repository = "packom/httpd-util", branch = "master" }
 
 [dependencies]
-pnet = "0.23.0"
-log = "0.4.6"
-signal-hook = "0.1.7"
-openssl = {version = "0.9.14"}
-clap = "2.25"
-env_logger = "0.6.0"
+pnet = "0.26"
+log = "0.4"
+signal-hook = "0.1"
+openssl = {version = "0.10"}
+clap = "2"
+env_logger = "0.7"

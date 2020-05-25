@@ -29,8 +29,7 @@ mod tests;
 
 use clap::App;
 use openssl::error::ErrorStack;
-use openssl::ssl::{SslAcceptorBuilder, SslMethod};
-use openssl::x509::X509_FILETYPE_PEM;
+use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslMethod};
 use std::env;
 use std::net::{SocketAddr, ToSocketAddrs};
 use signal_hook::{register, SIGINT, SIGTERM};
@@ -78,13 +77,13 @@ const NOT_PRESENT: &str = "<not present>";
 
 pub fn ssl() -> Result<SslAcceptorBuilder, ErrorStack> {
     // Builds an SSL implementation for Simple HTTPS from some hard-coded file names
-    let mut ssl = SslAcceptorBuilder::mozilla_intermediate_raw(SslMethod::tls())?;
+    let mut ssl = SslAcceptor::mozilla_intermediate_v5(SslMethod::tls())?;
 
     // Server authentication
     let key = get_env_str(SSL_KEY_VAR, SSL_KEY_DEF);
     let cert = get_env_str(SSL_CERT_VAR, SSL_CERT_DEF);
     debug!("Loading SSL key from {}", key);
-    ssl.set_private_key_file(key, X509_FILETYPE_PEM)?;
+    ssl.set_private_key_file(key, openssl::ssl::SslFiletype::PEM)?;
     debug!("Loading SSL cert from {}", cert);
     ssl.set_certificate_chain_file(cert)?;
     ssl.check_private_key()?;

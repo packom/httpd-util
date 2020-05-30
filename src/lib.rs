@@ -30,9 +30,9 @@ mod tests;
 use clap::App;
 use openssl::error::ErrorStack;
 use openssl::ssl::{SslAcceptor, SslAcceptorBuilder, SslMethod};
+use signal_hook::{register, SIGINT, SIGTERM};
 use std::env;
 use std::net::{SocketAddr, ToSocketAddrs};
-use signal_hook::{register, SIGINT, SIGTERM};
 
 const AFTER_HELP: &str = "Configured using environment variables:
     [SERVER_IP] - Local IP address or domain name to bind to
@@ -106,19 +106,20 @@ pub fn log_env(envs: Vec<&str>) {
 }
 
 pub fn get_env_strings(envs: Vec<&str>) -> Vec<String> {
-    let mut envs_i = vec![SSL_KEY_VAR, SSL_CERT_VAR, SERVER_IP_VAR, SERVER_PORT_VAR, HTTPS, RUST_LOG];
+    let mut envs_i = vec![
+        SSL_KEY_VAR,
+        SSL_CERT_VAR,
+        SERVER_IP_VAR,
+        SERVER_PORT_VAR,
+        HTTPS,
+        RUST_LOG,
+    ];
     for env in envs {
         envs_i.push(env)
     }
     envs_i
         .iter()
-        .map(|val| {
-            format!(
-                "{}: {}",
-                val,
-                get_env_str(val, NOT_PRESENT)
-            )
-        })
+        .map(|val| format!("{}: {}", val, get_env_str(val, NOT_PRESENT)))
         .collect::<Vec<String>>()
 }
 
@@ -202,14 +203,14 @@ macro_rules! reg_sig {
                 Err(e)
             })
             .ok();
-    }
+    };
 }
 
 macro_rules! handle_sig {
     ($sig: expr, $st: tt) => {
         warn!("{} caught - exiting", stringify!($sig));
         std::process::exit(128 + $sig);
-    }
+    };
 }
 
 pub fn reg_for_sigs() {
@@ -224,4 +225,3 @@ fn on_sigint() {
 fn on_sigterm() {
     handle_sig!(SIGTERM, "SIGTERM");
 }
-

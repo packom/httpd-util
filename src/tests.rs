@@ -24,18 +24,55 @@ fn reg_sigs() {
 }
 
 #[test]
+#[ignore]
+// Must be run using cargo test -- --ignored
+// This ensures only this test in run - otherwise environment variables from other
+// tests run in parallel may interere
 fn ssl_paths() {
+    // Clear out variables
     env::remove_var(SSL_KEY_VAR);
     env::remove_var(SSL_CERT_VAR);
+
+    // Check variables are empty
+    println!(
+        "SSL_KEY_VAR=\"{}\"",
+        env::var(SSL_KEY_VAR).unwrap_or("".to_string())
+    );
+    println!(
+        "SSL_CERT_VAR=\"{}\"",
+        env::var(SSL_CERT_VAR).unwrap_or("".to_string())
+    );
+    assert!(env::var(SSL_KEY_VAR).is_err());
+    assert!(env::var(SSL_CERT_VAR).is_err());
+
+    // Get defaults
     let key = get_env_str(SSL_KEY_VAR, SSL_KEY_DEF);
-    assert!(key == SSL_KEY_DEF);
     let cert = get_env_str(SSL_CERT_VAR, SSL_CERT_DEF);
+    println!(
+        "SSL_KEY_VAR=\"{}\", key=\"{}\", SSL_KEY_DEF=\"{}\"",
+        SSL_KEY_VAR, key, SSL_KEY_DEF
+    );
+    println!(
+        "SSL_CERT_VAR=\"{}\", cert={}, SSL_CERT_DEF=\"{}\"",
+        SSL_CERT_VAR, cert, SSL_CERT_DEF
+    );
+    assert!(key == SSL_KEY_DEF);
     assert!(cert == SSL_CERT_DEF);
+
+    // Set env variables and get these values
     env::set_var(SSL_KEY_VAR, "key");
     env::set_var(SSL_CERT_VAR, "cert");
     let key = get_env_str(SSL_KEY_VAR, SSL_KEY_DEF);
-    assert!(key == "key");
     let cert = get_env_str(SSL_CERT_VAR, SSL_CERT_DEF);
+    println!(
+        "SSL_KEY_VAR=\"{}\", key=\"{}\", SSL_KEY_DEF=\"{}\"",
+        SSL_KEY_VAR, key, SSL_KEY_DEF
+    );
+    println!(
+        "SSL_CERT_VAR=\"{}\", cert={}, SSL_CERT_DEF=\"{}\"",
+        SSL_CERT_VAR, cert, SSL_CERT_DEF
+    );
+    assert!(key == "key");
     assert!(cert == "cert");
 }
 
@@ -54,4 +91,3 @@ fn ssl_test() {
         Err(_) => (),
     }
 }
-

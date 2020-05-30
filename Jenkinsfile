@@ -31,6 +31,7 @@ pipeline {
                 sh '''
                     cd ~/builds/httpd-util && \
                     cargo test
+                    cargo test -- --ignored
                 '''
             }
         }

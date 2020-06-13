@@ -25,7 +25,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                        su - build && \
+                    su - build && \
                     cd /home/build/builds/httpd-util && \
                     cargo build
                 '''
@@ -34,7 +34,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                        su - build && \
+                    su - build && \
                     cd ~/builds/httpd-util && \
                     cargo test
                     cargo test -- --ignored

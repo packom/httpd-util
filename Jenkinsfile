@@ -12,7 +12,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'github.packom', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh '''
                         su - build && \
-                        cd ~/builds && \
+                        cd /home/build/builds && \
                         git clone https://packom:$PASSWORD@github.com/packom/httpd-util && \
                         cd httpd-util && \
                         echo `awk '/^version / {print $3;}' Cargo.toml | sed 's/"//g'` > /tmp/version && \
@@ -35,7 +35,7 @@ pipeline {
             steps {
                 sh '''
                     su - build && \
-                    cd ~/builds/httpd-util && \
+                    cd /home/build/builds/httpd-util && \
                     cargo test
                     cargo test -- --ignored
                 '''
@@ -46,7 +46,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'crates.packom', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh '''
                         su - build && \
-                        cd ~/builds/httpd-util && \
+                        cd /home/build/builds/httpd-util && \
                         CURV=$(cat /tmp/version) && \
                         echo `cargo search httpd-util | awk '/^httpd-util / {print $3;}' | sed 's/"//g'` > /tmp/old_version && \
                         echo "Old version is:" && \

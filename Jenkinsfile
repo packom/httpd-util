@@ -3,7 +3,7 @@ pipeline {
     agent {
         docker {
             image 'piersfinlayson/build-${arch}:0.3.3'
-            args '-u root --privileged'
+            args '-u build --privileged'
         }
     }
     stages {
@@ -11,7 +11,6 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github.packom', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh '''
-                        su - build && \
                         cd /home/build/builds && \
                         git clone https://packom:$PASSWORD@github.com/packom/httpd-util && \
                         cd httpd-util && \
@@ -25,7 +24,6 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    su - build && \
                     cd /home/build/builds/httpd-util && \
                     cargo build
                 '''
@@ -34,7 +32,6 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                    su - build && \
                     cd /home/build/builds/httpd-util && \
                     cargo test
                     cargo test -- --ignored
@@ -45,7 +42,6 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'crates.packom', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh '''
-                        su - build && \
                         cd /home/build/builds/httpd-util && \
                         CURV=$(cat /tmp/version) && \
                         echo `cargo search httpd-util | awk '/^httpd-util / {print $3;}' | sed 's/"//g'` > /tmp/old_version && \

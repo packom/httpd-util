@@ -1,7 +1,9 @@
 // https://www.jenkins.io/doc/book/pipeline/docker/
 pipeline {
     agent {
-        docker { image 'piersfinlayson/build-amd64:0.3.2' }
+        docker {
+            image 'piersfinlayson/build-${arch}:0.3.3'
+        }
     }
     stages {
         stage('Clone') {

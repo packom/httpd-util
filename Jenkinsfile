@@ -3,7 +3,7 @@ pipeline {
     agent {
         docker {
             image 'piersfinlayson/build-${arch}:0.3.3'
-            args '-u build:build'
+            args '-u root --privileged'
         }
     }
     stages {

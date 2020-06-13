@@ -10,7 +10,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github.packom', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     sh '''
-                        cd ~/builds && \
+                        cd /home/build/builds && \
                         git clone https://packom:$PASSWORD@github.com/packom/httpd-util && \
                         cd httpd-util && \
                         echo `awk '/^version / {print $3;}' Cargo.toml | sed 's/"//g'` > /tmp/version && \
@@ -23,7 +23,7 @@ pipeline {
         stage('Build') {
             steps {
                 sh '''
-                    cd ~/builds/httpd-util && \
+                    cd /home/build/builds/httpd-util && \
                     cargo build
                 '''
             }
